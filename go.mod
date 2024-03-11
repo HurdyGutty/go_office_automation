@@ -3,6 +3,7 @@ module github.com/HurdyGutty/go_office_automation
 go 1.21.4
 
 require (
+	github.com/lukasjarosch/go-docx v0.4.7 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.3 // indirect
