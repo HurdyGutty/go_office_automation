@@ -16,7 +16,7 @@ func main() {
 
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Office automation")
-	myWindow.Resize(fyne.NewSize(1000, 1000))
+	myWindow.Resize(fyne.NewSize(500, 500))
 
 	input_entry := widget.NewEntry()
 	open1 := widget.NewButton("Excel file", func() {
@@ -25,10 +25,14 @@ func main() {
 				dialog.ShowError(err, myWindow)
 				return
 			}
+			if reader == nil {
+				input_entry.Refresh()
+				return
+			}
 			input_entry.SetText(strings.TrimPrefix(reader.URI().String(), "file://"))
 			input_entry.Refresh()
 		}, myWindow)
-		input_dialog.Resize(fyne.NewSize(500, 500))
+		input_dialog.Resize(fyne.NewSize(800, 800))
 		input_dialog.Show()
 	})
 
@@ -47,11 +51,16 @@ func main() {
 				dialog.ShowError(err, myWindow)
 				return
 			}
+			if reader == nil {
+				template_entry.Refresh()
+				return
+			}
 			list, err := reader.List()
 			if err != nil {
 				dialog.ShowError(err, myWindow)
 				return
 			}
+			URI_list = []string{}
 			for _, uri := range list {
 				URI_list = append(URI_list, strings.TrimPrefix(uri.String(), "file://"))
 			}
@@ -68,6 +77,10 @@ func main() {
 		ouput_dialog := dialog.NewFolderOpen(func(reader fyne.ListableURI, err error) {
 			if err != nil {
 				dialog.ShowError(err, myWindow)
+				return
+			}
+			if reader == nil {
+				output_entry.Refresh()
 				return
 			}
 			output_entry.SetText(reader.Path())
