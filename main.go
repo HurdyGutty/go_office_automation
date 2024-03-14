@@ -32,7 +32,7 @@ func main() {
 			input_entry.SetText(strings.TrimPrefix(reader.URI().String(), "file://"))
 			input_entry.Refresh()
 		}, myWindow)
-		input_dialog.Resize(fyne.NewSize(800, 800))
+		input_dialog.Resize(fyne.NewSize(500, 500))
 		input_dialog.Show()
 	})
 
@@ -90,10 +90,29 @@ func main() {
 		ouput_dialog.Show()
 	})
 
+	status_label := widget.NewLabel("")
+
 	run_button := widget.NewButton("Run", func() {
+		if input_entry.Text == "" {
+			status_label.SetText("Please select an excel file")
+			status_label.Refresh()
+			return
+		}
+		if len(URI_list) == 0 {
+			status_label.SetText("Please select a template folder")
+			status_label.Refresh()
+			return
+		}
+		if output_entry.Text == "" {
+			status_label.SetText("Please select an output folder")
+			status_label.Refresh()
+			return
+		}
 		worker.CreateWorker(input_entry.Text, output_entry.Text, URI_list)
+		status_label.SetText("Done")
+		status_label.Refresh()
 	})
-	grid := container.New(layout.NewGridLayout(2), input_entry, open1, template_entry, open2, output_entry, open3, run_button)
+	grid := container.New(layout.NewGridLayout(2), input_entry, open1, template_entry, open2, output_entry, open3, run_button, status_label)
 	myWindow.SetContent(grid)
 	myWindow.ShowAndRun()
 }
