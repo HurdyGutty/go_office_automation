@@ -3,18 +3,19 @@ package worker
 import (
 	"fmt"
 
+	"github.com/HurdyGutty/go_office_automation/pkg/getTemplate"
 	"github.com/HurdyGutty/go_office_automation/pkg/readExcel"
 	"github.com/HurdyGutty/go_office_automation/pkg/replace"
 )
 
-func worker(persons []readExcel.Person, temp_file, output_dir string, jobs <-chan int, results chan<- int) {
+func worker(persons []readExcel.Person, temp_dir []string, output_dir string, jobs <-chan int, results chan<- int) {
 	for j := range jobs {
-		replace.Replace(persons[j], temp_file, fmt.Sprintf("%v/%d.docx", output_dir, j+1))
+		replace.Replace(persons[j], getTemplate.GetTemplate(temp_dir), fmt.Sprintf("%v/%d.docx", output_dir, j+1))
 		results <- j
 	}
 }
 
-func CreateWorker(input, temp_dir, output_dir string) {
+func CreateWorker(input, output_dir string, temp_dir []string) {
 	persons := readExcel.ReadExcel(input)
 	var numJobs = len(persons)
 
