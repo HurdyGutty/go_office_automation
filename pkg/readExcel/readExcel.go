@@ -11,8 +11,8 @@ import (
 
 type Person map[string]interface{}
 
-func openExcel() *excelize.File {
-	f, err := excelize.OpenFile("../file_test/CV NHẤT.xlsx")
+func openExcel(file string) *excelize.File {
+	f, err := excelize.OpenFile(file)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -34,8 +34,8 @@ func copyPerson(p Person) Person {
 	return new_person
 }
 
-func ReadExcel() []Person {
-	f := openExcel()
+func ReadExcel(inputFile string) []Person {
+	f := openExcel(inputFile)
 	defer closeExcel(f)
 
 	first_sheet := f.GetSheetName(0)
