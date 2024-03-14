@@ -1,7 +1,6 @@
 package replace
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/HurdyGutty/go_office_automation/pkg/readExcel"
@@ -14,13 +13,10 @@ func Replace(person readExcel.Person, temp_dir, output_dir string) {
 	for k, v := range person {
 		len := len(k)
 		if t, ok := v.(time.Time); ok {
-			fmt.Println(t)
 			v = t.Format("02/01/2006")
 		}
 		replaceMap[k[1:len-1]] = v
 	}
-
-	fmt.Println(replaceMap)
 
 	doc, err := docx.Open(temp_dir)
 	if err != nil {
