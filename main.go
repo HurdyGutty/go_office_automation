@@ -2,40 +2,76 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/HurdyGutty/go_office_automation/pkg/readExcel"
-	"github.com/HurdyGutty/go_office_automation/pkg/replace"
-	// "github.com/HurdyGutty/go_office_automation/pkg/zipXML"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
+	// "github.com/HurdyGutty/go_office_automation/pkg/worker"
 )
 
-func worker(persons []readExcel.Person, temp_dir string, jobs <-chan int, results chan<- int) {
-	for j := range jobs {
-		replace.Replace(persons[j], temp_dir, fmt.Sprintf("output/%d.docx", j+1))
-		results <- j
-	}
-}
-
 func main() {
-	persons := readExcel.ReadExcel()
-	length := len(persons)
+	// worker.CreateWorker("../file_test/CV Nhất.xlsx", "template/template_test.docx")
 
-	var numJobs = length
-	temp_dir := "template/template_test.docx"
+	myApp := app.New()
+	myWindow := myApp.NewWindow("Grid Layout")
+	myWindow.Resize(fyne.NewSize(1000, 1000))
 
-	jobs := make(chan int, numJobs)
-	results := make(chan int, numJobs)
+	input_entry := widget.NewEntry()
+	open1 := widget.NewButton("Excel file", func() {
+		input_dialog := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
+			if err != nil {
+				dialog.ShowError(err, myWindow)
+				return
+			}
+			input_entry.SetText(strings.TrimPrefix(reader.URI().String(), "file://"))
+			input_entry.Refresh()
+		}, myWindow)
+		input_dialog.Resize(fyne.NewSize(500, 500))
+		input_dialog.Show()
+	})
 
-	for w := 1; w <= 3; w++ {
-		go worker(persons, temp_dir, jobs, results)
-	}
+	URI_list := []string{}
+	output_entry := widget.NewList(func() int {
+		return len(URI_list)
+	}, func() fyne.CanvasObject {
+		return widget.NewLabel("templates")
+	},
+		func(i widget.ListItemID, item fyne.CanvasObject) {
+			item.(*widget.Label).SetText(URI_list[i])
+		})
+	open2 := widget.NewButton("Output folder", func() {
+		ouput_dialog := dialog.NewFolderOpen(func(reader fyne.ListableURI, err error) {
+			if err != nil {
+				dialog.ShowError(err, myWindow)
+				return
+			}
+			list, err := reader.List()
+			if err != nil {
+				dialog.ShowError(err, myWindow)
+				return
+			}
+			for _, uri := range list {
+				URI_list = append(URI_list, strings.TrimPrefix(uri.String(), "file://"))
+			}
+			output_entry.Refresh()
+		}, myWindow)
+		ouput_dialog.Resize(fyne.NewSize(500, 500))
+		ouput_dialog.Show()
 
-	for j := 0; j < numJobs; j++ {
-		jobs <- j
-	}
-	close(jobs)
+	})
 
-	for a := 0; a < numJobs; a++ {
-		<-results
-	}
-
+	run_button := widget.NewButton("Run", func() {
+		fmt.Printf("input: %s\n", input_entry.Text)
+		fmt.Println("output:")
+		for _, uri := range URI_list {
+			fmt.Println(uri)
+		}
+	})
+	grid := container.New(layout.NewGridLayout(2), input_entry, open1, output_entry, open2, run_button)
+	myWindow.SetContent(grid)
+	myWindow.ShowAndRun()
 }
