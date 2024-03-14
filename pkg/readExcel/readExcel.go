@@ -49,12 +49,13 @@ func ReadExcel(inputFile string) []Person {
 	keys := []string{}
 	suffix_time := "(time)"
 	for _, marker := range rows[0] {
-		if strings.Contains(marker, suffix_time) {
-			person[strings.TrimSuffix(marker, suffix_time)] = time.Now()
-			keys = append(keys, strings.TrimSuffix(marker, suffix_time))
+		spaced_trim := strings.TrimSpace(marker)
+		if strings.Contains(spaced_trim, suffix_time) {
+			person[strings.TrimSuffix(spaced_trim, suffix_time)] = time.Now()
+			keys = append(keys, strings.TrimSuffix(spaced_trim, suffix_time))
 		} else {
-			person[marker] = "A"
-			keys = append(keys, marker)
+			person[spaced_trim] = "A"
+			keys = append(keys, spaced_trim)
 		}
 	}
 
